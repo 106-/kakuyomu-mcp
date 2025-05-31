@@ -8,7 +8,7 @@ Kakuyomu MCP Server
 import asyncio
 import json
 import logging
-from typing import Any, List, Optional, Dict
+from typing import Any, List, Dict
 import requests
 from bs4 import BeautifulSoup
 

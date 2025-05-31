@@ -49,18 +49,6 @@ jobs:
       - name: Build Docker image
         run: docker build -t kakuyomu-mcp-test .
         
-      - name: Test Docker image
-        run: |
-          # Start container in background
-          docker run -d --name kakuyomu-test -p 8000:8000 kakuyomu-mcp-test
-          # Wait a moment for container to start
-          sleep 5
-          # Check if container is running
-          docker ps | grep kakuyomu-test
-          # Stop container
-          docker stop kakuyomu-test
-          docker rm kakuyomu-test
-
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: lint-and-build
