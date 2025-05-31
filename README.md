@@ -18,7 +18,7 @@
 # dockerhubからpull
 docker pull ubiq/kakuyomu-mcp:latest
 # claude codeの設定に追加
-claude mcp add kakuyomu-mcp --docker run -i --rm ubiq/kakuyomu-mcp:latest
+claude mcp add kakuyomu-mcp -- docker run -i --rm ubiq/kakuyomu-mcp:latest
 # 起動
 claude
 ```
