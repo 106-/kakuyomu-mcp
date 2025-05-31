@@ -61,7 +61,7 @@ docker pull ubiq/kakuyomu-mcp:latest
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/your-username/kakuyomu-mcp.git
+git clone https://github.com/106-/kakuyomu-mcp.git
 cd kakuyomu-mcp
 
 # 依存関係をインストール
