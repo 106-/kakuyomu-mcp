@@ -25,6 +25,19 @@ poetry install
 kakuyomu-mcp
 ```
 
+## Docker実行
+
+```bash
+# Dockerイメージをビルド
+docker build -t kakuyomu-mcp .
+
+# Dockerコンテナで実行
+docker run -p 8000:8000 kakuyomu-mcp
+
+# docker buildが正常に動作することを確認
+docker build -t kakuyomu-mcp-test .
+```
+
 ## アーキテクチャ
 
 ### 主要コンポーネント

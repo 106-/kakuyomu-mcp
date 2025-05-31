@@ -40,6 +40,57 @@ poetry install
 kakuyomu-mcp
 ```
 
+### Dockerで実行
+
+```bash
+# Dockerイメージをビルド
+docker build -t kakuyomu-mcp .
+
+# Dockerコンテナで実行
+docker run -p 8000:8000 kakuyomu-mcp
+```
+
+### Claude Code (MCP) での利用
+
+`.mcp.json`ファイルに以下の設定を追加:
+
+```json
+{
+  "mcpServers": {
+    "kakuyomu_mcp": {
+      "type": "stdio",
+      "command": "poetry",
+      "args": [
+        "run",
+        "python",
+        "./kakuyomu_mcp/main.py"
+      ],
+      "env": {}
+    }
+  }
+}
+```
+
+Dockerを使用する場合:
+
+```json
+{
+  "mcpServers": {
+    "kakuyomu_mcp": {
+      "type": "stdio", 
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "kakuyomu-mcp"
+      ],
+      "env": {}
+    }
+  }
+}
+```
+
 ### 利用可能なツール
 
 #### 1. `get_top_page`
