@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "kakuyomu_mcp": {
+      "type": "stdio",
+      "command": "poetry",
+      "args": [
+        "run",
+        "python",
+        "./kakuyomu_mcp/main.py"
+      ],
+      "env": {}
+    }
+  }
+}
