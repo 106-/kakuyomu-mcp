@@ -9,6 +9,36 @@
 - **エピソード一覧**: 特定作品のエピソード情報取得
 - **本文読み込み**: 特定エピソードの本文を取得
 
+## 🚀 簡単に試してみる
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-ubiq%2Fkakuyomu--mcp-blue?logo=docker)](https://hub.docker.com/r/ubiq/kakuyomu-mcp) に公開されているイメージを使えば、すぐに試せます。
+
+```bash
+# Dockerで即実行
+docker run -it --rm ubiq/kakuyomu-mcp:latest
+```
+
+### .mcp.jsonの設定
+
+Claude Code（MCP）で使う場合は、`.mcp.json`に以下を追加します：
+
+```json
+{
+  "mcpServers": {
+    "kakuyomu_mcp": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "ubiq/kakuyomu-mcp:latest"
+      ],
+      "env": {}
+    }
+  }
+}
+```
+
 ## インストール
 
 ### 必要な環境
