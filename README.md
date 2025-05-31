@@ -12,14 +12,25 @@
 ## 🚀 簡単に試してみる
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-ubiq%2Fkakuyomu--mcp-blue?logo=docker)](https://hub.docker.com/r/ubiq/kakuyomu-mcp) に公開されているイメージを使えば、すぐに試せます。
 
+### Claude Codeで使う
+
 ```bash
-# Dockerで即実行
-docker run -it --rm ubiq/kakuyomu-mcp:latest
+# dockerhubからpull
+docker pull ubiq/kakuyomu-mcp:latest
+# claude codeの設定に追加
+claude mcp add kakuyomu-mcp --docker run -i --rm ubiq/kakuyomu-mcp:latest
+# 起動
+claude
 ```
 
-### .mcp.jsonの設定
+### Claude Desktopで使う
 
-Claude Code（MCP）で使う場合は、`.mcp.json`に以下を追加します：
+```bash
+# dockerhubからpull
+docker pull ubiq/kakuyomu-mcp:latest
+```
+
+`claude_desktop_config.json`に以下を追加し、Claude Desktopを再起動します：
 
 ```json
 {
@@ -63,21 +74,14 @@ poetry install
 
 ```bash
 # 直接実行
-python kakuyomu_mcp/main.py
-
-# パッケージとしてインストールして実行
-poetry install
-kakuyomu-mcp
+make run
 ```
 
 ### Dockerで実行
 
 ```bash
-# Dockerイメージをビルド
-docker build -t kakuyomu-mcp .
-
 # Dockerコンテナで実行
-docker run -p 8000:8000 kakuyomu-mcp
+make docker-run
 ```
 
 ### Claude Code (MCP) での利用
@@ -121,15 +125,15 @@ Dockerを使用する場合:
 }
 ```
 
-### 利用可能なツール
+## 利用可能なツール
 
-#### 1. `get_top_page`
+### 1. `get_top_page`
 トップページから最新作品一覧を取得
 
 **パラメータ:**
 - `limit` (optional): 取得する作品数の上限（デフォルト: 10）
 
-#### 2. `search_works`
+### 2. `search_works`
 キーワードで作品を検索
 
 **パラメータ:**
@@ -144,36 +148,19 @@ Dockerを使用する場合:
 - `last_episode_published_date_range` (optional): 作品更新日範囲
 - `limit` (optional): 取得する作品数の上限（デフォルト: 10）
 
-#### 3. `get_work_episodes`
+### 3. `get_work_episodes`
 特定作品のエピソード一覧を取得
 
 **パラメータ:**
 - `work_id` (required): 作品ID
 - `limit` (optional): 取得するエピソード数の上限（デフォルト: 20）
 
-#### 4. `get_episode_content`
+### 4. `get_episode_content`
 特定エピソードの本文を取得
 
 **パラメータ:**
 - `work_id` (required): 作品ID
 - `episode_id` (required): エピソードID
-
-## アーキテクチャ
-
-### 技術スタック
-
-- **MCP**: Model Context Protocol
-- **requests**: HTTP リクエスト処理
-- **BeautifulSoup4**: HTML/XML 解析
-- **asyncio**: 非同期処理
-
-### データ取得パターン
-
-カクヨムは`__NEXT_DATA__`スクリプトタグ内にJSON形式でデータを格納しています：
-
-1. **作品データ**: `Work:`または`Work`で始まるキーでフィルタリング
-2. **エピソードデータ**: `Episode:`で始まるキーでフィルタリング  
-3. **本文データ**: `widget-episodeBody js-episode-body`クラスの`<p>`タグから抽出
 
 ## 開発
 
