@@ -101,9 +101,6 @@ kakuyomu-mcp
 ```bash
 # 開発依存関係を含めてインストール
 poetry install --with dev
-
-# テストの実行（Jupyter notebookに実装例があります）
-jupyter notebook kakuyomu.ipynb
 ```
 
 ### プロジェクト構造
@@ -281,11 +278,3 @@ kakuyomu-mcp/
 - カクヨムのHTML構造変更により動作しなくなる可能性があります
 - 過度なスクレイピングを避けるため、`limit`パラメータを適切に設定してください
 - エラー時は日本語でユーザーフレンドリーなメッセージを返します
-
-## ライセンス
-
-このプロジェクトは適切なライセンスの下で公開されています。
-
-## 貢献
-
-バグ報告や機能追加の提案は Issue または Pull Request でお願いします。
