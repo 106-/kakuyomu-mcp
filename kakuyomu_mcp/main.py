@@ -398,7 +398,7 @@ async def handle_call_tool(
 
             # ランキングの作品要素を取得
             work_elements = soup.find_all("div", class_="widget-work float-parent")
-            
+
             rankings = []
             for work_element in work_elements[:limit]:
                 ranking_data = {}
@@ -421,23 +421,35 @@ async def handle_call_tool(
                     ranking_data["title"] = title_link.get_text(strip=True)
 
                 # 作者を取得
-                author_link = work_element.find("a", class_="widget-workCard-authorLabel")
+                author_link = work_element.find(
+                    "a", class_="widget-workCard-authorLabel"
+                )
                 if author_link:
                     ranking_data["author"] = author_link.get_text(strip=True)
 
                 # キャッチフレーズを取得（最初のレビューから）
                 catchphrase_element = work_element.find("a", itemprop="reviewBody")
                 if catchphrase_element:
-                    ranking_data["catchphrase"] = catchphrase_element.get_text(strip=True)
+                    ranking_data["catchphrase"] = catchphrase_element.get_text(
+                        strip=True
+                    )
 
                 # タグを取得
-                tag_elements = work_element.find_all("a", href=lambda x: x and "/tags/" in x)
+                tag_elements = work_element.find_all(
+                    "a", href=lambda x: x and "/tags/" in x
+                )
                 if tag_elements:
-                    tags = [tag.find("span").get_text(strip=True) for tag in tag_elements if tag.find("span")]
+                    tags = [
+                        tag.find("span").get_text(strip=True)
+                        for tag in tag_elements
+                        if tag.find("span")
+                    ]
                     ranking_data["tags"] = tags
 
                 # イントロダクションを取得
-                intro_element = work_element.find("p", class_="widget-workCard-introduction")
+                intro_element = work_element.find(
+                    "p", class_="widget-workCard-introduction"
+                )
                 if intro_element:
                     intro_link = intro_element.find("a")
                     if intro_link:
