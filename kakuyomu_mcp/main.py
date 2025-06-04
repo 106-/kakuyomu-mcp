@@ -185,7 +185,7 @@ def parse_apollo_data(soup: BeautifulSoup) -> Dict[str, Any]:
     script_tag = soup.find("script", id="__NEXT_DATA__")
     if not script_tag:
         raise ValueError("__NEXT_DATA__スクリプトタグが見つかりません")
-    
+
     data = json.loads(script_tag.string)
     return data["props"]["pageProps"]["__APOLLO_STATE__"]
 
@@ -289,11 +289,11 @@ def rankings_to_string(rankings: List[Dict[str, Any]]) -> str:
 def handle_get_top_page(arguments: dict) -> List[types.TextContent]:
     """トップページから最新作品一覧を取得"""
     limit = arguments.get("limit", 10)
-    
+
     soup = kakuyomu_request("https://kakuyomu.jp/")
     data = parse_apollo_data(soup)
     works = list(filter(lambda x: x.startswith("Work"), data.keys()))
-    
+
     result = works_to_string(data, works[:limit])
     return [types.TextContent(type="text", text=result)]
 
@@ -303,9 +303,9 @@ def handle_search_works(arguments: dict) -> List[types.TextContent]:
     q = arguments.get("q")
     page = arguments.get("page", 1)
     limit = arguments.get("limit", 10)
-    
+
     params = {"q": q, "page": str(page)}
-    
+
     # オプションパラメータを追加
     for key in [
         "ex_q",
@@ -318,11 +318,11 @@ def handle_search_works(arguments: dict) -> List[types.TextContent]:
     ]:
         if key in arguments and arguments[key]:
             params[key] = arguments[key]
-    
+
     soup = kakuyomu_request("https://kakuyomu.jp/search", params)
     data = parse_apollo_data(soup)
     works = list(filter(lambda x: x.startswith("Work:"), data.keys()))
-    
+
     result = works_to_string(data, works[:limit])
     return [types.TextContent(type="text", text=result)]
 
@@ -331,11 +331,11 @@ def handle_get_work_episodes(arguments: dict) -> List[types.TextContent]:
     """特定の作品のエピソード一覧を取得"""
     work_id = arguments.get("work_id")
     limit = arguments.get("limit", 20)
-    
+
     soup = kakuyomu_request(f"https://kakuyomu.jp/works/{work_id}")
     data = parse_apollo_data(soup)
     episodes = list(filter(lambda x: x.startswith("Episode:"), data.keys()))
-    
+
     result = episodes_to_string(data, episodes[:limit])
     return [types.TextContent(type="text", text=result)]
 
@@ -344,9 +344,11 @@ def handle_get_episode_content(arguments: dict) -> List[types.TextContent]:
     """特定のエピソードの本文を取得"""
     work_id = arguments.get("work_id")
     episode_id = arguments.get("episode_id")
-    
-    soup = kakuyomu_request(f"https://kakuyomu.jp/works/{work_id}/episodes/{episode_id}")
-    
+
+    soup = kakuyomu_request(
+        f"https://kakuyomu.jp/works/{work_id}/episodes/{episode_id}"
+    )
+
     episode_body = soup.find("div", class_="widget-episodeBody js-episode-body")
     if not episode_body:
         return [
@@ -354,14 +356,14 @@ def handle_get_episode_content(arguments: dict) -> List[types.TextContent]:
                 type="text", text="エピソードの本文が見つかりませんでした。"
             )
         ]
-    
+
     # class="blank" を除いた <p> タグのテキストだけ抽出
     paragraphs = [
         p.get_text(strip=True)
         for p in episode_body.find_all("p")
         if "blank" not in p.get("class", [])
     ]
-    
+
     episode_content = "\n".join(paragraphs)
     return [types.TextContent(type="text", text=episode_content)]
 
@@ -371,21 +373,21 @@ def handle_get_rankings(arguments: dict) -> List[types.TextContent]:
     genre = arguments.get("genre", "all")
     period = arguments.get("period", "daily")
     limit = arguments.get("limit", 10)
-    
+
     soup = kakuyomu_request(f"https://kakuyomu.jp/rankings/{genre}/{period}")
-    
+
     # ランキングの作品要素を取得
     work_elements = soup.find_all("div", class_="widget-work float-parent")
-    
+
     rankings = []
     for work_element in work_elements[:limit]:
         ranking_data = {}
-        
+
         # 順位を取得
         rank_element = work_element.find("p", class_="widget-work-rank")
         if rank_element:
             ranking_data["rank"] = rank_element.get_text(strip=True)
-        
+
         # 作品IDを取得（URLから抽出）
         title_link = work_element.find("a", class_="widget-workCard-titleLabel")
         if title_link and title_link.get("href"):
@@ -393,29 +395,23 @@ def handle_get_rankings(arguments: dict) -> List[types.TextContent]:
             work_id = href.split("/works/")[-1] if "/works/" in href else None
             if work_id:
                 ranking_data["id"] = work_id
-        
+
         # タイトルを取得
         if title_link:
             ranking_data["title"] = title_link.get_text(strip=True)
-        
+
         # 作者を取得
-        author_link = work_element.find(
-            "a", class_="widget-workCard-authorLabel"
-        )
+        author_link = work_element.find("a", class_="widget-workCard-authorLabel")
         if author_link:
             ranking_data["author"] = author_link.get_text(strip=True)
-        
+
         # キャッチフレーズを取得（最初のレビューから）
         catchphrase_element = work_element.find("a", itemprop="reviewBody")
         if catchphrase_element:
-            ranking_data["catchphrase"] = catchphrase_element.get_text(
-                strip=True
-            )
-        
+            ranking_data["catchphrase"] = catchphrase_element.get_text(strip=True)
+
         # タグを取得
-        tag_elements = work_element.find_all(
-            "a", href=lambda x: x and "/tags/" in x
-        )
+        tag_elements = work_element.find_all("a", href=lambda x: x and "/tags/" in x)
         if tag_elements:
             tags = [
                 tag.find("span").get_text(strip=True)
@@ -423,18 +419,16 @@ def handle_get_rankings(arguments: dict) -> List[types.TextContent]:
                 if tag.find("span")
             ]
             ranking_data["tags"] = tags
-        
+
         # イントロダクションを取得
-        intro_element = work_element.find(
-            "p", class_="widget-workCard-introduction"
-        )
+        intro_element = work_element.find("p", class_="widget-workCard-introduction")
         if intro_element:
             intro_link = intro_element.find("a")
             if intro_link:
                 ranking_data["introduction"] = intro_link.get_text(strip=True)
-        
+
         rankings.append(ranking_data)
-    
+
     result = rankings_to_string(rankings)
     return [types.TextContent(type="text", text=result)]
 
