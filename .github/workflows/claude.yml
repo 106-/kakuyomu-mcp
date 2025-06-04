@@ -32,6 +32,6 @@ jobs:
       - name: Run Claude PR Action
         uses: anthropics/claude-code-action@beta
         with:
-          allowed_tools: "Bash(docker build -t kakuyomu-mcp-test .)"
+          allowed_tools: "Bash(docker build -t kakuyomu-mcp-test .),Bash(poetry run ruff:*)"
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           timeout_minutes: "60"

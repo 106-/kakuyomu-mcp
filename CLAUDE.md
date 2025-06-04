@@ -75,3 +75,4 @@ docker build -t kakuyomu-mcp-test .
 - `kakuyomu.ipynb`に実装例とテストケースがあるため、新機能開発時は参考にする
 - エラー時は日本語でユーザーフレンドリーなメッセージを返す
 - `limit`パラメータでデータ量を制御し、過度なスクレイピングを避ける
+- コミットする前に `poetry run ruff check .` と `poetry run ruff format --check .` を行う。
