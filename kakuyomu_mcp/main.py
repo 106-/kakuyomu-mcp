@@ -80,6 +80,45 @@ def episodes_to_string(data: Dict[str, Dict[str, Any]], episodes: List[str]) -> 
     return "\n".join(output_lines)
 
 
+def rankings_to_string(rankings: List[Dict[str, Any]]) -> str:
+    """ランキングデータを文字列に変換"""
+    output_lines: List[str] = []
+
+    for ranking_data in rankings:
+        rank = ranking_data.get("rank")
+        if rank:
+            output_lines.append(f"順位: {rank}")
+
+        id_ = ranking_data.get("id")
+        if id_:
+            output_lines.append(f"ID: {id_}")
+
+        title = ranking_data.get("title")
+        if title:
+            output_lines.append(f"タイトル: {title}")
+
+        author = ranking_data.get("author")
+        if author:
+            output_lines.append(f"作者: {author}")
+
+        catchphrase = ranking_data.get("catchphrase")
+        if catchphrase:
+            output_lines.append(f"キャッチフレーズ: {catchphrase}")
+
+        tags = ranking_data.get("tags")
+        if tags:
+            tag_str = ", ".join(tags)
+            output_lines.append(f"タグ: {tag_str}")
+
+        introduction = ranking_data.get("introduction")
+        if introduction:
+            output_lines.append("イントロダクション:\n```\n" + introduction + "\n```")
+
+        output_lines.append("")  # 区切りの空行
+
+    return "\n".join(output_lines)
+
+
 @server.list_tools()
 async def handle_list_tools() -> List[types.Tool]:
     """利用可能なツールのリストを返す"""
@@ -209,6 +248,47 @@ async def handle_list_tools() -> List[types.Tool]:
                 "required": ["work_id", "episode_id"],
             },
         ),
+        types.Tool(
+            name="get_rankings",
+            description="カクヨムのランキングページから作品ランキングを取得",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "genre": {
+                        "type": "string",
+                        "description": "ジャンル",
+                        "enum": [
+                            "all",
+                            "fantasy",
+                            "action",
+                            "sf",
+                            "love_story",
+                            "romance",
+                            "drama",
+                            "horror",
+                            "mystery",
+                            "nonfiction",
+                            "history",
+                            "criticism",
+                            "others",
+                        ],
+                        "default": "all",
+                    },
+                    "period": {
+                        "type": "string",
+                        "description": "期間",
+                        "enum": ["daily", "weekly", "monthly", "yearly", "entire"],
+                        "default": "daily",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "取得する作品数の上限 (デフォルト: 10)",
+                        "default": 10,
+                    },
+                },
+                "required": [],
+            },
+        ),
     ]
 
 
@@ -307,6 +387,67 @@ async def handle_call_tool(
             episode_content = "\n".join(paragraphs)
             return [types.TextContent(type="text", text=episode_content)]
 
+        elif name == "get_rankings":
+            genre = arguments.get("genre", "all")
+            period = arguments.get("period", "daily")
+            limit = arguments.get("limit", 10)
+
+            url = f"https://kakuyomu.jp/rankings/{genre}/{period}"
+            res = requests.get(url)
+            soup = BeautifulSoup(res.text, "html.parser")
+
+            # ランキングの作品要素を取得
+            work_elements = soup.find_all("div", class_="widget-work float-parent")
+            
+            rankings = []
+            for work_element in work_elements[:limit]:
+                ranking_data = {}
+
+                # 順位を取得
+                rank_element = work_element.find("p", class_="widget-work-rank")
+                if rank_element:
+                    ranking_data["rank"] = rank_element.get_text(strip=True)
+
+                # 作品IDを取得（URLから抽出）
+                title_link = work_element.find("a", class_="widget-workCard-titleLabel")
+                if title_link and title_link.get("href"):
+                    href = title_link.get("href")
+                    work_id = href.split("/works/")[-1] if "/works/" in href else None
+                    if work_id:
+                        ranking_data["id"] = work_id
+
+                # タイトルを取得
+                if title_link:
+                    ranking_data["title"] = title_link.get_text(strip=True)
+
+                # 作者を取得
+                author_link = work_element.find("a", class_="widget-workCard-authorLabel")
+                if author_link:
+                    ranking_data["author"] = author_link.get_text(strip=True)
+
+                # キャッチフレーズを取得（最初のレビューから）
+                catchphrase_element = work_element.find("a", itemprop="reviewBody")
+                if catchphrase_element:
+                    ranking_data["catchphrase"] = catchphrase_element.get_text(strip=True)
+
+                # タグを取得
+                tag_elements = work_element.find_all("a", href=lambda x: x and "/tags/" in x)
+                if tag_elements:
+                    tags = [tag.find("span").get_text(strip=True) for tag in tag_elements if tag.find("span")]
+                    ranking_data["tags"] = tags
+
+                # イントロダクションを取得
+                intro_element = work_element.find("p", class_="widget-workCard-introduction")
+                if intro_element:
+                    intro_link = intro_element.find("a")
+                    if intro_link:
+                        ranking_data["introduction"] = intro_link.get_text(strip=True)
+
+                rankings.append(ranking_data)
+
+            result = rankings_to_string(rankings)
+            return [types.TextContent(type="text", text=result)]
+
         else:
             raise ValueError(f"Unknown tool: {name}")
 
@@ -341,6 +482,7 @@ async def handle_read_resource(uri: str) -> str:
 2. search_works - 作品を検索
 3. get_work_episodes - 作品のエピソード一覧を取得
 4. get_episode_content - エピソードの本文を取得
+5. get_rankings - ランキングページから作品ランキングを取得
 """
     else:
         raise ValueError(f"Unknown resource: {uri}")
