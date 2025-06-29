@@ -1,14 +1,20 @@
 {
   "mcpServers": {
-    "kakuyomu_mcp": {
+    "kakuyomu_mcp_stdio": {
       "type": "stdio",
       "command": "poetry",
       "args": [
         "run",
         "python",
-        "./kakuyomu_mcp/main.py"
+        "./kakuyomu_mcp/main.py",
+        "--transport",
+        "stdio"
       ],
       "env": {}
+    },
+    "kakuyomu_mcp_http": {
+      "type": "http",
+      "url": "http://127.0.0.1:9468/mcp"
     }
   }
 }

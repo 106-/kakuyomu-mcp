@@ -17,8 +17,12 @@ COPY kakuyomu_mcp/ ./kakuyomu_mcp/
 # Install dependencies
 RUN poetry install --only=main
 
-# Expose port for MCP server
-EXPOSE 8000
+# Expose port for StreamableHTTP MCP server
+EXPOSE 9468
 
-# Run the MCP server
-CMD ["python", "-m", "kakuyomu_mcp.main"]
+# Set environment variables for HTTP server
+ENV PORT=9468
+ENV HOST=0.0.0.0
+
+# Run the MCP server with StreamableHTTP
+CMD ["python", "-m", "kakuyomu_mcp.main", "--transport", "streamable-http"]
