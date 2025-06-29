@@ -1,11 +1,12 @@
-.PHONY: help run docker-build docker-run format check lint install clean
+.PHONY: help run run-shttp docker-build docker-run format check lint install clean
 
 # Default target
 help:
 	@echo "Available commands:"
 	@echo "  help        - Show this help message"
 	@echo "  install     - Install dependencies with poetry"
-	@echo "  run         - Run the MCP server directly"
+	@echo "  run-stdio   - Run the MCP server directly (stdio mode)"
+	@echo "  run-http   - Run the MCP server with streamable-http transport"
 	@echo "  docker-build - Build Docker image"
 	@echo "  docker-run  - Run the MCP server in Docker container"
 	@echo "  format      - Format code with ruff"
@@ -17,9 +18,13 @@ help:
 install:
 	poetry install
 
-# Run the MCP server directly
-run:
-	poetry run python kakuyomu_mcp/main.py
+# Run the MCP server directly (stdio mode)
+run-stdio:
+	poetry run python kakuyomu_mcp/main.py --transport stdio
+
+# Run the MCP server with streamable-http transport
+run-http:
+	poetry run python kakuyomu_mcp/main.py --transport streamable-http
 
 # Build Docker image
 docker-build:
@@ -27,7 +32,7 @@ docker-build:
 
 # Run the MCP server in Docker container
 docker-run: docker-build
-	docker run -p 8000:8000 kakuyomu-mcp
+	docker run -p 9468:9468 kakuyomu-mcp
 
 # Format code with ruff
 format:
