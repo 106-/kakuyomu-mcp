@@ -24,5 +24,8 @@ EXPOSE 9468
 ENV PORT=9468
 ENV HOST=0.0.0.0
 
-# Run the MCP server with StreamableHTTP
-CMD ["python", "-m", "kakuyomu_mcp.main", "--transport", "streamable-http"]
+# Start MCP server (defaults to stdio mode)
+# Transport can be specified at docker run time with --transport option
+# Examples: docker run -i kakuyomu-mcp --transport stdio
+#           docker run -p 9468:9468 kakuyomu-mcp --transport streamable-http
+ENTRYPOINT ["python", "-m", "kakuyomu_mcp.main"]

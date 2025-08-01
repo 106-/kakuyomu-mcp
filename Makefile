@@ -1,4 +1,4 @@
-.PHONY: help run run-shttp docker-build docker-run format check lint install clean
+.PHONY: help run run-shttp docker-build docker-run-stdio docker-run-http format check lint install clean
 
 # Default target
 help:
@@ -30,9 +30,13 @@ run-http:
 docker-build:
 	docker build -t kakuyomu-mcp .
 
-# Run the MCP server in Docker container
-docker-run: docker-build
-	docker run -p 9468:9468 kakuyomu-mcp
+# Run the MCP server in Docker container (stdio mode)
+docker-run-stdio: docker-build
+	docker run -i kakuyomu-mcp --transport stdio
+
+# Run the MCP server in Docker container (streamable-http mode)
+docker-run-http: docker-build
+	docker run -p 9468:9468 kakuyomu-mcp --transport streamable-http
 
 # Format code with ruff
 format:
