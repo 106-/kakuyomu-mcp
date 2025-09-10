@@ -30,9 +30,7 @@ def kakuyomu_request(url: str, params: dict = None) -> BeautifulSoup:
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/138.0.0.0 Safari/537.36"
     )
-    headers = {
-        "User-Agent": os.getenv("USER_AGENT", default_user_agent)
-    }
+    headers = {"User-Agent": os.getenv("USER_AGENT", default_user_agent)}
     res = requests.get(url, params=params, headers=headers)
     res.raise_for_status()
     return BeautifulSoup(res.text, "html.parser")
