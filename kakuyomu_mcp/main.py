@@ -25,7 +25,15 @@ mcp = FastMCP("kakuyomu-mcp", host=host, port=port)
 
 def kakuyomu_request(url: str, params: dict = None) -> BeautifulSoup:
     """カクヨムのページを取得してBeautifulSoupオブジェクトを返す"""
-    res = requests.get(url, params=params)
+    default_user_agent = (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/138.0.0.0 Safari/537.36"
+    )
+    headers = {
+        "User-Agent": os.getenv("USER_AGENT", default_user_agent)
+    }
+    res = requests.get(url, params=params, headers=headers)
     res.raise_for_status()
     return BeautifulSoup(res.text, "html.parser")
 
